@@ -66,11 +66,8 @@ export class SceneGraphService{
 }
 /** 애니메이션 함수 */
 const startAnimation = function (sceneGraph: SceneGraphService) {
-    let a = 0;
 	const animationFrame = function () {
         sceneGraph.renderer.onRender();
-        a++;
-        console.log(a)
 		requestAnimationFrame(animationFrame);
 	}
 

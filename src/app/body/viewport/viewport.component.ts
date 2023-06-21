@@ -1,7 +1,9 @@
 import { Component, ElementRef, ViewChild } from '@angular/core';
+
+
 import { NIndex, NotificationService, NotifyHandler } from 'src/app/notification-service/notification-service';
 import { SceneGraphService } from 'src/app/scene-graph-service/scene-graph-service';
-import { EventService } from '../../event-service/event-service';
+import { EventHandler, EventService, EventType } from '../../event-service/event-service';
 
 @Component({
     selector: 'app-viewport',
@@ -11,13 +13,19 @@ import { EventService } from '../../event-service/event-service';
 export class ViewportComponent {
     /* 뷰포트 div 요소 */
     @ViewChild('viewport', { static: true }) viewport: ElementRef;
+    @ViewChild('paragraph', { static: true }) paragraph: ElementRef;
     constructor(
         private _event: EventService,
         private _notification: NotificationService,
-        private _sceneGraph: SceneGraphService,
+        public sceneGraph: SceneGraphService,
     ) {
         this.viewport = undefined as unknown as ElementRef;
+        this.paragraph = undefined as unknown as ElementRef;
         this._notifyHandler = new NotifyHandler(this._notification, this.onNotify.bind(this));
+        this._eventHandler = new EventHandler(this._event);
+        this._eventHandler.set(EventType.OnKeyDown, this.onKeyDown.bind(this));
+        this._eventHandler.set(EventType.OnKeyUp, this.onKeyUp.bind(this));
+        this._eventHandler.set(EventType.OnInput, this.onInput.bind(this));
     }
 
     ngAfterViewInit(): void {
@@ -27,10 +35,19 @@ export class ViewportComponent {
         this._notification.notify(NIndex.createdViewportDiv, this.viewport.nativeElement);
     }
 
+    private onKeyDown(event: KeyboardEvent): void {
+        this.paragraph.nativeElement.focus();
+    }
+    private onKeyUp(event: KeyboardEvent): void {
+    }
+    private onInput(event: InputEvent): void {
+    }
+
     private onNotify(nid: number, params: any, sender: any): void {
         switch (nid) {
         }
     }
 
     private _notifyHandler: NotifyHandler;
+    private _eventHandler: EventHandler;
 }

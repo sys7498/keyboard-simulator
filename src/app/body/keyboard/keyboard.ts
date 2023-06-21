@@ -7,9 +7,12 @@ import { CSS2DObject } from "three/examples/jsm/renderers/CSS2DRenderer";
 import { TextGeometry } from "three/examples/jsm/geometries/TextGeometry";
 import { DEG2RAD } from "three/src/math/MathUtils";
 import { FontLoader } from "three/examples/jsm/loaders/FontLoader";
+import { Text } from "troika-three-text";
 
 export class Keyboard{
     public offset = 0.5;
+    public paragraph: any;
+    public a = 0;
     constructor(
         private _event: EventService,
         private _notification: NotificationService,
@@ -18,17 +21,22 @@ export class Keyboard{
         this._eventHandler = new EventHandler(this._event);
         this._eventHandler.set(EventType.OnKeyDown, this.onKeyDown.bind(this));
         this._eventHandler.set(EventType.OnKeyUp, this.onKeyUp.bind(this));
+        this._eventHandler.set(EventType.OnInput, this.onInput.bind(this));
         this._notifyHandler = new NotifyHandler(this._notification, this.onNotify.bind(this));
         this._keyBoard = null;
         this._isKeyCapDown = {};
+        this.paragraph = new Text();
     }
 
-    private createWindow(): void { 
-        const windowElement = document.createElement('div');
-        const window = new CSS2DObject(windowElement);
-        windowElement.textContent = 'asdfasdfasdfasdfasdf';
-        window.position.set(0, -10, 10)
-        this._sceneGraph.group.add(window);
+    private createWindow(): void {
+        this.paragraph.font = 'assets/NotoSansKR-Regular.otf'
+        this.paragraph.text = '안녕';
+        this.paragraph.fontSize = 0.5;
+        this.paragraph.color = 0x000000;
+        this.paragraph.position.set(17, -10, 10);
+        this.paragraph.rotation.set(DEG2RAD * 90, DEG2RAD * 180 , 0)
+        this.paragraph.sync();
+        this._sceneGraph.group.add(this.paragraph);
     }
 
     private createKeyboard(): void { 
@@ -36,12 +44,19 @@ export class Keyboard{
             this._keyBoard = gltf.scene;
             this._sceneGraph.group.add(gltf.scene);
             this._keyBoard.children.forEach((child, index) => {
-                (child as THREE.Mesh).material = new THREE.MeshPhysicalMaterial({ color: 0xDCDCDC });
-                const windowElement = document.createElement('div');
-                const window = new CSS2DObject(windowElement);
-                windowElement.textContent = child.name;
-                window.position.set(0, 0, 1)
-                child.add(window);
+                if (child.name === 'board') {
+                    (child as THREE.Mesh).material = new THREE.MeshPhysicalMaterial({ color: 0x1D1E23 });
+                } else {
+                    (child as THREE.Mesh).material = new THREE.MeshPhysicalMaterial({ color: 0xDCDCDC });
+                }
+                //const alphabet = new Text();
+                //alphabet.text = child.name;
+                //alphabet.fontSize = 0.5;
+                //alphabet.color = 0x000000;
+                //alphabet.position.set(0, 0, 2.01);
+                //alphabet.rotation.set(0, 0, DEG2RAD * -90);
+                //child.add(alphabet);
+                //alphabet.sync();
                 this._isKeyCapDown[child.name] = false;
             });
         });
@@ -52,16 +67,22 @@ export class Keyboard{
     }
 
     private onKeyDown(event: KeyboardEvent): void {
-        if (!this._isKeyCapDown[event.key]) { 
-            this._isKeyCapDown[event.key] = true;
-            this._keyBoard!.children[this.findKeyCap(event.key)].translateZ(-this.offset);
+        console.log(event.code)
+        if (!this._isKeyCapDown[event.code]) { 
+            this._isKeyCapDown[event.code] = true;
+            this._keyBoard!.children[this.findKeyCap(event.code)].translateZ(-this.offset);
         }
+        
     }
 
     private onKeyUp(event: KeyboardEvent): void {
-        console.log(event.key)
-        this._keyBoard!.children[this.findKeyCap(event.key)].translateZ(this.offset);
-        this._isKeyCapDown[event.key] = false;
+        console.log(event.code)
+        console.log(this.a++)
+        this._keyBoard!.children[this.findKeyCap(event.code)].translateZ(this.offset);
+        this._isKeyCapDown[event.code] = false;
+    }
+
+    private onInput(event: InputEvent): void{
     }
 
     private onNotify(nid: number, params: any, sender: any) {

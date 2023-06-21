@@ -6,7 +6,7 @@ export class Axes{
         sceneGraph: SceneGraphService,
     ) {
         this._axes = this.createAxis('Axes');
-        sceneGraph.misc.add(this._axes);
+        //sceneGraph.misc.add(this._axes);
     }
 
     private createAxis(name: string): THREE.AxesHelper {

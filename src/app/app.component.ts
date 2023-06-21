@@ -74,6 +74,11 @@ export class AppComponent {
 		//event.preventDefault();
 	}
 
+	@HostListener('window:input', ['$event'])
+	onInput(event: InputEvent): void {
+		this._event.emit(EventType.OnInput, event as AnyEvent);
+	}
+
 	/** 알림 수신 콜백 메서드 */
 	private onNotify(nid: number, params: any, sender: any): void {
 		switch (nid) {

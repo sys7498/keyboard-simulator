@@ -8,7 +8,13 @@ import { ViewportComponent } from './body/viewport/viewport.component';
 import { NotificationService } from './notification-service/notification-service';
 import { SceneGraphService } from './scene-graph-service/scene-graph-service';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
+import { FormsModule } from '@angular/forms';
+import { MatInputModule } from '@angular/material/input';
+import { MatFormFieldModule } from '@angular/material/form-field';
+
 import { KeycapsComponent } from './body/viewport/keycaps/keycaps.component';
+
+
 
 @NgModule({
   declarations: [
@@ -21,6 +27,9 @@ import { KeycapsComponent } from './body/viewport/keycaps/keycaps.component';
     BrowserModule,
     AppRoutingModule,
     BrowserAnimationsModule,
+    FormsModule,
+    MatInputModule,
+    MatFormFieldModule
   ],
   providers: [
     NotificationService,

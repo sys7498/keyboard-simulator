@@ -10,7 +10,7 @@ type NotificationCallback = (nid: number, params: any, sender: any) => void;
 
 export enum NIndex{
     createdViewportDiv = 0,
-    resizedClientSize,
+	resizedClientSize,
 }
 
 /** 알림 서비스 */
