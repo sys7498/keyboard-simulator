@@ -14,6 +14,8 @@ import { Grid } from "./misc/grid/grid";
 import { Axes } from "./misc/axes/axes";
 import { DEG2RAD } from "three/src/math/MathUtils";
 import { Keyboard } from "../body/keyboard/keyboard";
+import { Simulation } from "../body/simulation/simulation";
+import * as TWEEN from '@tweenjs/tween.js'
 
 @Injectable({ providedIn: 'root' })
 export class SceneGraphService{
@@ -26,6 +28,7 @@ export class SceneGraphService{
     public readonly grid: Grid;
     public readonly axes: Axes;
     public readonly keyboard: Keyboard;
+    public readonly simulation: Simulation;
 
     constructor(
         private _event: EventService,
@@ -41,6 +44,7 @@ export class SceneGraphService{
         this.grid = new Grid(this);
         this.axes = new Axes(this);
         this.keyboard = new Keyboard(this._event, this._notification, this);
+        this.simulation = new Simulation(this._event, this._notification, this);
         this.scene.add(this.group);
         this.scene.add(this.misc);
         this._notifyHandler = new NotifyHandler(this._notification, this.onNotify.bind(this));
@@ -66,8 +70,10 @@ export class SceneGraphService{
 }
 /** 애니메이션 함수 */
 const startAnimation = function (sceneGraph: SceneGraphService) {
-	const animationFrame = function () {
+    const clock = new THREE.Clock();
+    const animationFrame = function () {
         sceneGraph.renderer.onRender();
+        TWEEN.update();
 		requestAnimationFrame(animationFrame);
 	}
 

@@ -8,11 +8,11 @@ import { TextGeometry } from "three/examples/jsm/geometries/TextGeometry";
 import { DEG2RAD } from "three/src/math/MathUtils";
 import { FontLoader } from "three/examples/jsm/loaders/FontLoader";
 import { Text } from "troika-three-text";
+import * as TWEEN from '@tweenjs/tween.js'
 
 export class Keyboard{
     public offset = 0.5;
-    public paragraph: any;
-    public a = 0;
+    public paragraph: any;    
     constructor(
         private _event: EventService,
         private _notification: NotificationService,
@@ -25,21 +25,30 @@ export class Keyboard{
         this._notifyHandler = new NotifyHandler(this._notification, this.onNotify.bind(this));
         this._keyBoard = null;
         this._isKeyCapDown = {};
+        this._clock = new THREE.Clock();
         this.paragraph = new Text();
+        this._tweens = {};
     }
 
     private createWindow(): void {
         this.paragraph.font = 'assets/NotoSansKR-Regular.otf'
-        this.paragraph.text = '안녕';
-        this.paragraph.fontSize = 0.5;
+        this.paragraph.text = '';
+        this.paragraph.fontSize = 1;
         this.paragraph.color = 0x000000;
-        this.paragraph.position.set(17, -10, 10);
-        this.paragraph.rotation.set(DEG2RAD * 90, DEG2RAD * 180 , 0)
+        this.paragraph.anchorX = 'center';
+        this.paragraph.anchorY = 'middle';
+        this.paragraph.overflowWrap = 'break-word';
+        this.paragraph.maxWidth = 32;
+        this.paragraph.position.set(0, -7, 10);
+        this.paragraph.rotation.set(DEG2RAD * 90, DEG2RAD * 180, 0);
         this.paragraph.sync();
         this._sceneGraph.group.add(this.paragraph);
     }
 
-    private createKeyboard(): void { 
+    public update(dt: number) {
+    }
+
+    private createKeyboard(): void {
         new GLTFLoader().setPath('assets/').load('new_keyboard.gltf', (gltf) => {
             this._keyBoard = gltf.scene;
             this._sceneGraph.group.add(gltf.scene);
@@ -49,16 +58,12 @@ export class Keyboard{
                 } else {
                     (child as THREE.Mesh).material = new THREE.MeshPhysicalMaterial({ color: 0xDCDCDC });
                 }
-                //const alphabet = new Text();
-                //alphabet.text = child.name;
-                //alphabet.fontSize = 0.5;
-                //alphabet.color = 0x000000;
-                //alphabet.position.set(0, 0, 2.01);
-                //alphabet.rotation.set(0, 0, DEG2RAD * -90);
-                //child.add(alphabet);
-                //alphabet.sync();
                 this._isKeyCapDown[child.name] = false;
+                let tweenDown = new TWEEN.Tween(child.position).to({ z: child.position.z - 0.5 }, 100);
+                let tweenUp = new TWEEN.Tween(child.position).to({ z: child.position.z }, 100);
+                this._tweens[child.name] = [tweenDown, tweenUp];
             });
+            
         });
     }
 
@@ -67,22 +72,28 @@ export class Keyboard{
     }
 
     private onKeyDown(event: KeyboardEvent): void {
-        console.log(event.code)
         if (!this._isKeyCapDown[event.code]) { 
+            if (this._tweens[this._keyBoard!.children[this.findKeyCap(event.code)].name][1].isPlaying()) {
+                this._tweens[this._keyBoard!.children[this.findKeyCap(event.code)].name][1].stop();
+            }
             this._isKeyCapDown[event.code] = true;
-            this._keyBoard!.children[this.findKeyCap(event.code)].translateZ(-this.offset);
+            this._tweens[this._keyBoard!.children[this.findKeyCap(event.code)].name][0].start();
         }
-        
     }
 
     private onKeyUp(event: KeyboardEvent): void {
-        console.log(event.code)
-        console.log(this.a++)
-        this._keyBoard!.children[this.findKeyCap(event.code)].translateZ(this.offset);
+        //this._keyBoard!.children[this.findKeyCap(event.code)].translateZ(this.offset);
+        
+        if (this._tweens[this._keyBoard!.children[this.findKeyCap(event.code)].name][0].isPlaying()) {
+            this._tweens[this._keyBoard!.children[this.findKeyCap(event.code)].name][0].stop();
+        }
         this._isKeyCapDown[event.code] = false;
+        this._tweens[this._keyBoard!.children[this.findKeyCap(event.code)].name][1].start();
+        
     }
 
     private onInput(event: InputEvent): void{
+        this.paragraph.sync();
     }
 
     private onNotify(nid: number, params: any, sender: any) {
@@ -99,4 +110,6 @@ export class Keyboard{
     private _notifyHandler: NotifyHandler;
     private _keyBoard: THREE.Object3D | null;
     private _isKeyCapDown: any;
+    private _clock: THREE.Clock;
+    private _tweens: any;
 }
