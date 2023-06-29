@@ -10,7 +10,7 @@ export class CameraSet{
         event: EventService,
         notification: NotificationService,
     ) {
-        this.camera = this.createPerspectiveCamera('camera', new THREE.Vector3(0, 20, 20));
+        this.camera = this.createPerspectiveCamera('camera', new THREE.Vector3(20, 20, 17));
         this.orbitControls = undefined as unknown as OrbitControls;
         this._viewportDiv = undefined as unknown as HTMLDivElement;
         this._notifyHandler = new NotifyHandler(notification, this.onNotify.bind(this));
@@ -65,7 +65,7 @@ export class CameraSet{
     
     private createPerspectiveCamera(name: string, position: THREE.Vector3): THREE.PerspectiveCamera {
 		const camera = new THREE.PerspectiveCamera(
-			60, 1, 0.1, 1000);
+			45, 1, 0.01, 1000);
 		camera.name = name;
 		camera.up.set(0, 0, 1);
 		camera.position.copy(position);

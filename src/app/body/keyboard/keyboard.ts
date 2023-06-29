@@ -13,6 +13,7 @@ import * as TWEEN from '@tweenjs/tween.js'
 export class Keyboard{
     public offset = 0.5;
     public paragraph: any;    
+    public keyBoard: THREE.Object3D | null;
     constructor(
         private _event: EventService,
         private _notification: NotificationService,
@@ -23,7 +24,7 @@ export class Keyboard{
         this._eventHandler.set(EventType.OnKeyUp, this.onKeyUp.bind(this));
         this._eventHandler.set(EventType.OnInput, this.onInput.bind(this));
         this._notifyHandler = new NotifyHandler(this._notification, this.onNotify.bind(this));
-        this._keyBoard = null;
+        this.keyBoard = null;
         this._isKeyCapDown = {};
         this._clock = new THREE.Clock();
         this.paragraph = new Text();
@@ -39,7 +40,8 @@ export class Keyboard{
         this.paragraph.anchorY = 'middle';
         this.paragraph.overflowWrap = 'break-word';
         this.paragraph.maxWidth = 32;
-        this.paragraph.position.set(0, -7, 10);
+        //this.paragraph.position.set(0, -7, 10);
+        this.paragraph.position.set(-10, -27, 10);
         this.paragraph.rotation.set(DEG2RAD * 90, DEG2RAD * 180, 0);
         this.paragraph.sync();
         this._sceneGraph.group.add(this.paragraph);
@@ -50,9 +52,10 @@ export class Keyboard{
 
     private createKeyboard(): void {
         new GLTFLoader().setPath('assets/').load('new_keyboard.gltf', (gltf) => {
-            this._keyBoard = gltf.scene;
+            this.keyBoard = gltf.scene;
+            this.keyBoard.position.set(-20, -20, 0);
             this._sceneGraph.group.add(gltf.scene);
-            this._keyBoard.children.forEach((child, index) => {
+            this.keyBoard.children.forEach((child, index) => {
                 if (child.name === 'board') {
                     (child as THREE.Mesh).material = new THREE.MeshPhysicalMaterial({ color: 0x1D1E23 });
                 } else {
@@ -68,27 +71,28 @@ export class Keyboard{
     }
 
     private findKeyCap(name: string): number{
-        return this._keyBoard!.children.findIndex((child) => child.name === name);
+        return this.keyBoard!.children.findIndex((child) => child.name === name);
     }
 
     private onKeyDown(event: KeyboardEvent): void {
         if (!this._isKeyCapDown[event.code]) { 
-            if (this._tweens[this._keyBoard!.children[this.findKeyCap(event.code)].name][1].isPlaying()) {
-                this._tweens[this._keyBoard!.children[this.findKeyCap(event.code)].name][1].stop();
+            if (this._tweens[this.keyBoard!.children[this.findKeyCap(event.code)].name][1].isPlaying()) {
+                this._tweens[this.keyBoard!.children[this.findKeyCap(event.code)].name][1].stop();
             }
             this._isKeyCapDown[event.code] = true;
-            this._tweens[this._keyBoard!.children[this.findKeyCap(event.code)].name][0].start();
+            this._tweens[this.keyBoard!.children[this.findKeyCap(event.code)].name][0].start();
         }
     }
 
     private onKeyUp(event: KeyboardEvent): void {
-        //this._keyBoard!.children[this.findKeyCap(event.code)].translateZ(this.offset);
-        
-        if (this._tweens[this._keyBoard!.children[this.findKeyCap(event.code)].name][0].isPlaying()) {
-            this._tweens[this._keyBoard!.children[this.findKeyCap(event.code)].name][0].stop();
+        if (this._tweens[this.keyBoard!.children[this.findKeyCap(event.code)].name][0].isPlaying()) {
+            this._tweens[this.keyBoard!.children[this.findKeyCap(event.code)].name][0].stop();
         }
         this._isKeyCapDown[event.code] = false;
-        this._tweens[this._keyBoard!.children[this.findKeyCap(event.code)].name][1].start();
+        this._tweens[this.keyBoard!.children[this.findKeyCap(event.code)].name][1].start();
+    }
+
+    private randomAnimate(): void {
         
     }
 
@@ -108,7 +112,6 @@ export class Keyboard{
     
     private _eventHandler: EventHandler;
     private _notifyHandler: NotifyHandler;
-    private _keyBoard: THREE.Object3D | null;
     private _isKeyCapDown: any;
     private _clock: THREE.Clock;
     private _tweens: any;

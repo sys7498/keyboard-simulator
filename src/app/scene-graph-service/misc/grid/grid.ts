@@ -6,7 +6,7 @@ export class Grid{
         sceneGraph: SceneGraphService,
     ) {
         this._grid = this.createGrid('Grid');
-        //sceneGraph.misc.add(this._grid);
+        sceneGraph.misc.add(this._grid);
     }
 
     private createGrid(name: string): THREE.GridHelper {

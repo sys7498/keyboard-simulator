@@ -73,6 +73,12 @@ const startAnimation = function (sceneGraph: SceneGraphService) {
     const clock = new THREE.Clock();
     const animationFrame = function () {
         sceneGraph.renderer.onRender();
+        //for (let i = 0; i < 10; i++){
+        //    sceneGraph.simulation.update(clock.getDelta());
+        //}
+
+        sceneGraph.simulation.update(clock.getDelta());
+        
         TWEEN.update();
 		requestAnimationFrame(animationFrame);
 	}
