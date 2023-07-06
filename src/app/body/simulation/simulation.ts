@@ -16,15 +16,15 @@ export class Simulation{
         private _notification: NotificationService,
         private _sceneGraph: SceneGraphService
     ) {
-        this.gravity = new THREE.Vector3(0, 0, -0.0098);
-        this.wind = new THREE.Vector3(0.008, 0.005, 0);
+        this.gravity = new THREE.Vector3(0, 0, -0.00098);
+        this.wind = new THREE.Vector3(0, 0.0001, 0);
         this._eventHandler = new EventHandler(this._event);
         this._eventHandler.set(EventType.OnKeyUp, this.onKeyUp.bind(this));
         this._notifyHandler = new NotifyHandler(this._notification, this.onNotify.bind(this));
         this._particles = [];
         for (let i = 0; i < 10; i++) {
             for (let j = 0; j < 10; j++) {
-                const particle = new Particle(this._event, this._notification, this._sceneGraph);
+                const particle = new Particle(this._event, this._notification, this._sceneGraph, 0.05);
                 particle.position.set(j , 0, i + 10);
                 particle.originPosition = particle.position.clone();
                 this._particles.push(particle);
@@ -32,7 +32,7 @@ export class Simulation{
         }
         for (let i = 0; i < 9; i++) {
             for (let j = 0; j < 9; j++) {
-                const particle = new Particle(this._event, this._notification, this._sceneGraph);
+                const particle = new Particle(this._event, this._notification, this._sceneGraph, 0.05);
                 particle.position.set(j + 0.5, 0, i + 10.5);
                 particle.originPosition = particle.position.clone();
                 this._particles.push(particle);
@@ -65,24 +65,33 @@ export class Simulation{
         }
         this._plane = new Plane(this._event, this._notification, this._sceneGraph, points);
         this._updateFrequency = 0;
+        this._ball = new Particle(this._event, this._notification, this._sceneGraph, 1);
+        this._ball.position.copy(new THREE.Vector3(20, 0, 20));
+        this._ball.originPosition = this._ball.position.clone();
     }
 
     public update(dt: number) {
         this._updateFrequency += dt;
-        if (this._updateFrequency > 0.02) {
+        for (let i = 0; i < 60; i++) {
             if (this._start) {
                 this._particles.forEach(particle => {
                     particle.applyForce(this.gravity);
                     particle.applyForce(this.wind);
-                    particle.applyForce(particle.force.clone().negate().multiplyScalar(0.5));
-                    particle.update();
+                    particle.applyForce(particle.force.clone().negate().multiplyScalar(0.2));
                 });
-                this._springs.forEach(spring => {
-                    spring.applyForce();
-                });
-                this._plane.update();
-                this._particles[90].reset();
-                this._particles[99].reset();
+                this._ball.applyForce(this.gravity);
+                if (this._ball.collideGround()) {
+                    let d = this._ball.position.clone().sub(new THREE.Vector3(0)).dot(new THREE.Vector3(0, 0.5, 0.5));
+                    let v = this._ball.velocity.clone().dot(new THREE.Vector3(0, 0.5, 0.5));
+                    let vN = new THREE.Vector3(0, 0.5, 0.5).multiplyScalar(v);
+
+                    this._ball.position.sub(new THREE.Vector3(0, 0.5, 0.5).multiplyScalar(d));
+                    if (v < 0.5) { 
+                        this._ball.velocity.sub(vN);
+                    } else { 
+                        this._ball.velocity.sub(vN.clone().multiplyScalar(0.5).add(vN));
+                    } 
+                }
             } else {
                 this._particles.forEach(particle => {
                     particle.reset();
@@ -91,9 +100,19 @@ export class Simulation{
                     spring.reset();
                 });
                 this._plane.reset();
+                this._ball.reset();
             }
-            this._updateFrequency = 0;
         }
+        this._particles.forEach(particle => {
+                particle.update();
+        });
+        this._springs.forEach(spring => {
+                spring.applyForce();
+        });
+        this._plane.update();
+        this._ball.update();
+        this._particles[90].reset();
+        this._particles[99].reset();
         
     }
 
@@ -125,4 +144,5 @@ export class Simulation{
     private _plane: Plane;
     private _start: boolean = false;
     private _updateFrequency: number;
+    private _ball: Particle;
 }

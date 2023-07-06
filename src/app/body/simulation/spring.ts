@@ -20,7 +20,7 @@ export class Spring extends THREE.Line{
         lineGeometry.setFromPoints([particle0.position, particle1.position])
         super(lineGeometry, new THREE.LineBasicMaterial({ color: 0xffffff }));
         this.originLength = particle0.position.distanceTo(particle1.position);
-        this.k = 0.085;
+        this.k = 0.087;
         this.damping = 0.07
         //this._sceneGraph.group.add(this);
         this._eventHandler = new EventHandler(this._event);

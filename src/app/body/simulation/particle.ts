@@ -13,9 +13,10 @@ export class Particle extends THREE.Mesh{
     constructor(
         private _event: EventService,
         private _notification: NotificationService,
-        private _sceneGraph: SceneGraphService
+        private _sceneGraph: SceneGraphService,
+        radius: number,
     ) {
-        super(new THREE.SphereGeometry(0.05, 10, 10), new THREE.MeshBasicMaterial({ color: Math.random() * 0xffffff }));
+        super(new THREE.SphereGeometry(radius, 10, 10), new THREE.MeshBasicMaterial({ color: Math.random() * 0xffffff }));
         this.force = new THREE.Vector3(0, 0, 0);
         this.velocity = new THREE.Vector3(0, 0, 0);
         this.velocity.normalize();
@@ -33,6 +34,13 @@ export class Particle extends THREE.Mesh{
             this.velocity.set(0, 0, 0)
        }
     }
+
+    public collideGround(): boolean {
+        if (this.position.z <= 0.5) {
+            return true;
+        } else return false;
+    }
+
     public reset() {
         this.force = new THREE.Vector3(0, 0, 0);
         this.velocity = new THREE.Vector3(0, 0, 0);
@@ -42,7 +50,7 @@ export class Particle extends THREE.Mesh{
     public update() {
         this.velocity.add(this.force.divideScalar(this.mass).clone());
         this.position.add(this.velocity);
-        this.groundCheck();
+        
         this.force.set(0, 0, 0);
     }
 

@@ -65,6 +65,16 @@ export class Keyboard{
                 let tweenDown = new TWEEN.Tween(child.position).to({ z: child.position.z - 0.5 }, 100);
                 let tweenUp = new TWEEN.Tween(child.position).to({ z: child.position.z }, 100);
                 this._tweens[child.name] = [tweenDown, tweenUp];
+                if (child.children.length > 0) { 
+                    child.children.forEach((c) => {
+                        let box = new THREE.Box3Helper((c as THREE.Mesh).geometry.boundingBox!);
+                        this._sceneGraph.group.add(box);
+                    });
+                } else {
+                    let box = new THREE.Box3Helper((child as THREE.Mesh).geometry.boundingBox!);
+                    this._sceneGraph.group.add(box);
+                }
+                
             });
             
         });
