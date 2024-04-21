@@ -4,10 +4,11 @@ import { CSS2DRenderer } from 'three/examples/jsm/renderers/CSS2DRenderer.js';
 import { SceneGraphService } from '../scene-graph-service';
 import { CameraSet } from '../camera/camera-set';
 import { EventHandler, EventService, EventType } from 'src/app/event-service/event-service';
+import { CSS3DRenderer } from 'three/examples/jsm/renderers/CSS3DRenderer';
 
 export class Renderer{
     public webGLRenderer: THREE.WebGLRenderer;
-    public css2DRenderer: CSS2DRenderer;
+    public css3DRenderer: CSS3DRenderer;
 	constructor(
 		event: EventService,
         notification: NotificationService,
@@ -15,7 +16,7 @@ export class Renderer{
         cameraSet: CameraSet,
 	) {
         this.webGLRenderer = this.createWebGLRenderer();
-        this.css2DRenderer = this.createCSS2DRenderer();
+        this.css3DRenderer = this.createCSS3DRenderer();
         this._sceneGraph = sceneGraph;
         this._viewportDiv = undefined as unknown as HTMLDivElement;
 		this._cameraSet = cameraSet;
@@ -30,7 +31,7 @@ export class Renderer{
 	initialize(viewportDiv: HTMLDivElement) {
 		this._viewportDiv = viewportDiv;
 		this._viewportDiv.appendChild(this.webGLRenderer.domElement);
-		this._viewportDiv.appendChild(this.css2DRenderer.domElement);
+		this._viewportDiv.appendChild(this.css3DRenderer.domElement);
 		this.onWindowResize();
     }
 
@@ -39,7 +40,7 @@ export class Renderer{
 		this.webGLRenderer.clear();
 		this.webGLRenderer.render(this._sceneGraph.scene, this._cameraSet.camera);
 		this.webGLRenderer.clearDepth();
-		this.css2DRenderer.render(this._sceneGraph.scene, this._cameraSet.camera);
+		this.css3DRenderer.render(this._sceneGraph.scene, this._cameraSet.camera);
     }
     
     private onNotify(nid: number, params: any, sender: any) {
@@ -50,7 +51,7 @@ export class Renderer{
     /** 창 크기가 변경될 경우 호출되는 메서드 */
 	private onWindowResize() {
 		this.webGLRenderer.setSize(this._viewportDiv.clientWidth, this._viewportDiv.clientHeight);
-		this.css2DRenderer.setSize(this._viewportDiv.clientWidth, this._viewportDiv.clientHeight);
+		this.css3DRenderer.setSize(this._viewportDiv.clientWidth, this._viewportDiv.clientHeight);
 	}
 
     /** WebGL 렌더러를 생성하고 반환하는 메서드 */
@@ -62,12 +63,12 @@ export class Renderer{
 	}
 
 	/** CSS2D 렌더러를 생성하고 반환하는 메서드 */
-	private createCSS2DRenderer(): CSS2DRenderer {
-		const css2DRenderer = new CSS2DRenderer();
-		css2DRenderer.domElement.style.touchAction = 'none';
-		css2DRenderer.domElement.style.position = 'absolute';
-		css2DRenderer.domElement.style.top = '0px';
-		return css2DRenderer;
+	private createCSS3DRenderer(): CSS3DRenderer {
+		const css3DRenderer = new CSS3DRenderer();
+		css3DRenderer.domElement.style.touchAction = 'none';
+		css3DRenderer.domElement.style.position = 'absolute';
+		css3DRenderer.domElement.style.top = '0px';
+		return css3DRenderer;
 	}
 	
 	private _eventHandler: EventHandler;
